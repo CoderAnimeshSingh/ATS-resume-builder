@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useResume } from '../../context/ResumeContext';
@@ -6,6 +5,7 @@ import PersonalInfoForm from './forms/PersonalInfoForm';
 import ExperienceForm from './forms/ExperienceForm';
 import EducationForm from './forms/EducationForm';
 import SkillsForm from './forms/SkillsForm';
+import CertificationsForm from './forms/CertificationsForm';
 import TemplateSelector from './TemplateSelector';
 import ResumePreview from '../preview/ResumePreview';
 import ExportButton from './ExportButton';
@@ -30,6 +30,7 @@ const ResumeBuilder = () => {
       case 'personal': return <User className="w-4 h-4" />;
       case 'experience': return <Briefcase className="w-4 h-4" />;
       case 'education': return <GraduationCap className="w-4 h-4" />;
+      case 'certifications': return <Award className="w-4 h-4" />;
       case 'skills': return <Award className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }
@@ -43,6 +44,8 @@ const ResumeBuilder = () => {
         return <ExperienceForm />;
       case 'education':
         return <EducationForm />;
+      case 'certifications':
+        return <CertificationsForm />;
       case 'skills':
         return <SkillsForm />;
       case 'templates':

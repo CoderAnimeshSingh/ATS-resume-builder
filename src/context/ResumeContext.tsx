@@ -31,9 +31,17 @@ export interface Skill {
   level: string;
 }
 
+export interface Certification {
+  id: string;
+  title: string;
+  provider: string;
+  date: string;
+  description?: string;
+}
+
 export interface ResumeSection {
   id: string;
-  type: 'personal' | 'experience' | 'education' | 'skills';
+  type: 'personal' | 'experience' | 'education' | 'skills' | 'certifications';
   title: string;
   isVisible: boolean;
 }
@@ -42,6 +50,7 @@ export interface ResumeData {
   personalInfo: PersonalInfo;
   experience: Experience[];
   education: Education[];
+  certifications: Certification[];
   skills: Skill[];
   sections: ResumeSection[];
   template: string;
@@ -64,6 +73,9 @@ type ResumeAction =
   | { type: 'ADD_SKILL'; payload: Skill }
   | { type: 'UPDATE_SKILL'; payload: { id: string; data: Partial<Skill> } }
   | { type: 'DELETE_SKILL'; payload: string }
+  | { type: 'ADD_CERTIFICATION'; payload: Certification }
+  | { type: 'UPDATE_CERTIFICATION'; payload: { id: string; data: Partial<Certification> } }
+  | { type: 'DELETE_CERTIFICATION'; payload: string }
   | { type: 'REORDER_SECTIONS'; payload: ResumeSection[] }
   | { type: 'SET_ACTIVE_SECTION'; payload: string }
   | { type: 'SET_TEMPLATE'; payload: string }
@@ -80,11 +92,13 @@ const initialResumeData: ResumeData = {
   },
   experience: [],
   education: [],
+  certifications: [],
   skills: [],
   sections: [
     { id: 'personal', type: 'personal', title: 'Personal Information', isVisible: true },
     { id: 'experience', type: 'experience', title: 'Work Experience', isVisible: true },
     { id: 'education', type: 'education', title: 'Education', isVisible: true },
+    { id: 'certifications', type: 'certifications', title: 'Certifications', isVisible: true },
     { id: 'skills', type: 'skills', title: 'Skills', isVisible: true }
   ],
   template: 'modern',
@@ -182,6 +196,32 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
         resume: {
           ...state.resume,
           skills: state.resume.skills.filter(skill => skill.id !== action.payload)
+        }
+      };
+    case 'ADD_CERTIFICATION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          certifications: [...state.resume.certifications, action.payload]
+        }
+      };
+    case 'UPDATE_CERTIFICATION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          certifications: state.resume.certifications.map(cert =>
+            cert.id === action.payload.id ? { ...cert, ...action.payload.data } : cert
+          )
+        }
+      };
+    case 'DELETE_CERTIFICATION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          certifications: state.resume.certifications.filter(cert => cert.id !== action.payload)
         }
       };
     case 'REORDER_SECTIONS':

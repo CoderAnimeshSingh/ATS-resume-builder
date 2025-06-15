@@ -175,6 +175,39 @@ const ResumePreview = () => {
                 </section>
               ) : null;
 
+            case 'certifications':
+              return resume.certifications && resume.certifications.length > 0 ? (
+                <section key={section.id} className="mb-8">
+                  <h2 className={`text-2xl font-bold mb-4 pb-2 border-b ${styles.primaryColor} ${styles.borderColor}`}>
+                    Certifications
+                  </h2>
+                  <div className="space-y-4">
+                    {resume.certifications.map((cert) => (
+                      <div key={cert.id} className="flex flex-col md:flex-row md:justify-between md:items-center">
+                        <div>
+                          <h3 className={`text-lg font-semibold ${styles.primaryColor}`}>
+                            {cert.title || 'Certification Title'}
+                          </h3>
+                          <p className={`font-medium ${styles.accentColor} text-sm`}>
+                            {cert.provider || 'Issuing Organization'}
+                          </p>
+                          {cert.description && (
+                            <p className="text-gray-700 leading-relaxed whitespace-pre-line mt-1 text-sm">
+                              {cert.description}
+                            </p>
+                          )}
+                        </div>
+                        {cert.date && (
+                          <div className="flex items-center space-x-1 text-gray-500 text-sm mt-2 md:mt-0">
+                            <span>{formatDate(cert.date)}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null;
+
             case 'skills':
               return resume.skills.length > 0 ? (
                 <section key={section.id} className="mb-8">
@@ -209,6 +242,7 @@ const ResumePreview = () => {
         switch (section.type) {
           case 'experience': return resume.experience.length === 0;
           case 'education': return resume.education.length === 0;
+          case 'certifications': return resume.certifications.length === 0;
           case 'skills': return resume.skills.length === 0;
           default: return true;
         }
