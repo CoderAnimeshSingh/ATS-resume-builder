@@ -1,197 +1,148 @@
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Separator } from '../ui/separator';
+import { ScrollArea } from '../ui/scroll-area';
 
-import React from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useResume } from '../../context/ResumeContext';
+// Form components
 import PersonalInfoForm from './forms/PersonalInfoForm';
 import SocialLinksForm from './forms/SocialLinksForm';
-import ExperienceForm from './forms/ExperienceForm';
 import EducationForm from './forms/EducationForm';
 import SkillsForm from './forms/SkillsForm';
 import TechnicalSkillsForm from './forms/TechnicalSkillsForm';
+import ExperienceForm from './forms/ExperienceForm';
 import ProjectsForm from './forms/ProjectsForm';
 import PositionsForm from './forms/PositionsForm';
 import CertificationsForm from './forms/CertificationsForm';
-import TemplateSelector from './TemplateSelector';
-import ResumeValidator from './ResumeValidator';
+
+// Other components
 import ResumePreview from '../preview/ResumePreview';
 import ExportButton from './ExportButton';
 import ThemeToggle from './ThemeToggle';
-import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette, Link, Code, FolderOpen, Users, Star, CheckSquare } from 'lucide-react';
+import ResumeValidator from './ResumeValidator';
+import Header from './Header';
+import BrandingFooter from './BrandingFooter';
+
+// Icons
+import { 
+  User, 
+  Link, 
+  GraduationCap, 
+  Code, 
+  Briefcase, 
+  FolderOpen, 
+  Trophy, 
+  Award,
+  FileText,
+  Eye,
+  Settings
+} from 'lucide-react';
 
 const ResumeBuilder = () => {
-  const { state, dispatch } = useResume();
+  const [activeTab, setActiveTab] = useState('personal');
 
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(state.resume.sections);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    dispatch({ type: 'REORDER_SECTIONS', payload: items });
-  };
-
-  const getSectionIcon = (type: string) => {
-    switch (type) {
-      case 'personal': return <User className="w-4 h-4" />;
-      case 'links': return <Link className="w-4 h-4" />;
-      case 'experience': return <Briefcase className="w-4 h-4" />;
-      case 'education': return <GraduationCap className="w-4 h-4" />;
-      case 'skills': return <Star className="w-4 h-4" />;
-      case 'technicalSkills': return <Code className="w-4 h-4" />;
-      case 'projects': return <FolderOpen className="w-4 h-4" />;
-      case 'positions': return <Users className="w-4 h-4" />;
-      case 'certifications': return <Award className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
-    }
-  };
-
-  const renderSectionForm = (sectionType: string) => {
-    switch (sectionType) {
-      case 'personal':
-        return <PersonalInfoForm />;
-      case 'links':
-        return <SocialLinksForm />;
-      case 'experience':
-        return <ExperienceForm />;
-      case 'education':
-        return <EducationForm />;
-      case 'skills':
-        return <SkillsForm />;
-      case 'technicalSkills':
-        return <TechnicalSkillsForm />;
-      case 'projects':
-        return <ProjectsForm />;
-      case 'positions':
-        return <PositionsForm />;
-      case 'certifications':
-        return <CertificationsForm />;
-      case 'templates':
-        return <TemplateSelector />;
-      case 'validator':
-        return <ResumeValidator />;
-      default:
-        return null;
-    }
-  };
-
-  const allSections = [
-    ...state.resume.sections,
-    { id: 'templates', type: 'templates' as const, title: 'Templates', isVisible: true },
-    { id: 'validator', type: 'validator' as const, title: 'Resume Score', isVisible: true }
+  const formSections = [
+    { id: 'personal', label: 'Personal Info', icon: User, component: PersonalInfoForm },
+    { id: 'social', label: 'Social Links', icon: Link, component: SocialLinksForm },
+    { id: 'education', label: 'Education', icon: GraduationCap, component: EducationForm },
+    { id: 'skills', label: 'Skills', icon: Code, component: SkillsForm },
+    { id: 'technical', label: 'Technical Skills', icon: Settings, component: TechnicalSkillsForm },
+    { id: 'experience', label: 'Experience', icon: Briefcase, component: ExperienceForm },
+    { id: 'projects', label: 'Projects', icon: FolderOpen, component: ProjectsForm },
+    { id: 'positions', label: 'Positions', icon: Trophy, component: PositionsForm },
+    { id: 'certifications', label: 'Certifications', icon: Award, component: CertificationsForm },
   ];
 
   return (
-    <div className={`min-h-screen ${state.resume.theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <header className={`border-b px-6 py-4 ${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <FileText className={`w-8 h-8 ${state.resume.theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
-            <div>
-              <h1 className={`text-2xl font-bold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Resume Builder Pro
-              </h1>
-              <p className={`text-sm ${state.resume.theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                Create ATS-friendly professional resumes
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            <ExportButton />
-          </div>
-        </div>
-      </header>
-
-      <div className="flex h-[calc(100vh-100px)]">
-        {/* Left Sidebar - Builder */}
-        <div className={`w-1/2 border-r overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-          <div className="p-6">
-            <h2 className={`text-lg font-semibold mb-4 ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Resume Sections
-            </h2>
-            
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="sections">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                    {allSections.map((section, index) => (
-                      <Draggable 
-                        key={section.id} 
-                        draggableId={section.id} 
-                        index={index}
-                        isDragDisabled={section.type === 'templates' || section.type === 'validator'}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className={`border rounded-lg overflow-hidden transition-all duration-200 ${
-                              snapshot.isDragging 
-                                ? `shadow-lg transform rotate-2 ${state.resume.theme === 'dark' ? 'bg-gray-700 border-blue-400' : 'bg-blue-50 border-blue-300'}` 
-                                : `${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-600 hover:border-gray-500' : 'bg-white border-gray-200 hover:border-gray-300'}`
-                            } ${
-                              state.activeSection === section.id 
-                                ? `ring-2 ${state.resume.theme === 'dark' ? 'ring-blue-400 border-blue-400' : 'ring-blue-500 border-blue-500'}` 
-                                : ''
-                            }`}
-                          >
-                            <div
-                              {...(section.type !== 'templates' && section.type !== 'validator' ? provided.dragHandleProps : {})}
-                              className={`flex items-center justify-between p-4 cursor-pointer ${state.resume.theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-                              onClick={() => dispatch({ type: 'SET_ACTIVE_SECTION', payload: section.id })}
-                            >
-                              <div className="flex items-center space-x-3">
-                                {section.type === 'templates' ? (
-                                  <Palette className="w-4 h-4" />
-                                ) : section.type === 'validator' ? (
-                                  <CheckSquare className="w-4 h-4" />
-                                ) : (
-                                  getSectionIcon(section.type)
-                                )}
-                                <span className={`font-medium ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                  {section.title}
-                                </span>
-                              </div>
-                              {section.type !== 'templates' && section.type !== 'validator' && (
-                                <GripVertical className={`w-5 h-5 ${state.resume.theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
-                              )}
-                            </div>
-                            
-                            {state.activeSection === section.id && (
-                              <div className={`border-t p-4 ${state.resume.theme === 'dark' ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
-                                {renderSectionForm(section.type)}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-        </div>
-
-        {/* Right Side - Preview */}
-        <div className={`w-1/2 overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className={`text-lg font-semibold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Live Preview
-              </h2>
-              <div className="text-xs text-gray-500 bg-green-100 px-2 py-1 rounded">
-                A4 Format • ATS Optimized
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <div className="max-w-full mx-auto p-4 lg:p-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
+          {/* Builder Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <FileText className="w-6 h-6 text-blue-600" />
+                <h2 className="text-2xl font-bold text-gray-900">Resume Builder</h2>
+                <Badge variant="secondary" className="text-xs">Professional</Badge>
+              </div>
+              <div className="flex items-center space-x-3">
+                <ThemeToggle />
+                <ExportButton />
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-              <ResumePreview />
+
+            <ResumeValidator />
+
+            <Card className="shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5" />
+                  <span>Resume Sections</span>
+                </CardTitle>
+                <CardDescription>
+                  Fill in your information to create a professional, ATS-friendly resume
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <ScrollArea className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
+                      {formSections.map((section) => {
+                        const Icon = section.icon;
+                        return (
+                          <TabsTrigger
+                            key={section.id}
+                            value={section.id}
+                            className="flex flex-col items-center space-y-1 p-3 text-xs data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700"
+                          >
+                            <Icon className="w-4 h-4" />
+                            <span className="hidden sm:inline">{section.label}</span>
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                  </ScrollArea>
+
+                  <Separator className="my-4" />
+
+                  <ScrollArea className="h-[600px] w-full">
+                    {formSections.map((section) => {
+                      const Component = section.component;
+                      return (
+                        <TabsContent key={section.id} value={section.id} className="mt-0">
+                          <Component />
+                        </TabsContent>
+                      );
+                    })}
+                  </ScrollArea>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Preview Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Eye className="w-6 h-6 text-green-600" />
+                <h2 className="text-2xl font-bold text-gray-900">Live Preview</h2>
+                <Badge variant="outline" className="text-xs">A4 Format</Badge>
+              </div>
             </div>
+
+            <Card className="shadow-lg">
+              <CardContent className="p-0">
+                <ResumePreview />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
+      
+      <BrandingFooter />
     </div>
   );
 };
