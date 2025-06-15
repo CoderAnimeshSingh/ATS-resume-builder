@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 export interface PersonalInfo {
@@ -45,6 +44,8 @@ export interface ResumeData {
   education: Education[];
   skills: Skill[];
   sections: ResumeSection[];
+  template: string;
+  theme: 'light' | 'dark';
 }
 
 interface ResumeState {
@@ -65,6 +66,8 @@ type ResumeAction =
   | { type: 'DELETE_SKILL'; payload: string }
   | { type: 'REORDER_SECTIONS'; payload: ResumeSection[] }
   | { type: 'SET_ACTIVE_SECTION'; payload: string }
+  | { type: 'SET_TEMPLATE'; payload: string }
+  | { type: 'SET_THEME'; payload: 'light' | 'dark' }
   | { type: 'LOAD_RESUME'; payload: ResumeData };
 
 const initialResumeData: ResumeData = {
@@ -83,7 +86,9 @@ const initialResumeData: ResumeData = {
     { id: 'experience', type: 'experience', title: 'Work Experience', isVisible: true },
     { id: 'education', type: 'education', title: 'Education', isVisible: true },
     { id: 'skills', type: 'skills', title: 'Skills', isVisible: true }
-  ]
+  ],
+  template: 'modern',
+  theme: 'light'
 };
 
 const initialState: ResumeState = {
@@ -191,6 +196,22 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
       return {
         ...state,
         activeSection: action.payload
+      };
+    case 'SET_TEMPLATE':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          template: action.payload
+        }
+      };
+    case 'SET_THEME':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          theme: action.payload
+        }
       };
     case 'LOAD_RESUME':
       return {

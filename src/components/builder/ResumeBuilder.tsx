@@ -6,8 +6,11 @@ import PersonalInfoForm from './forms/PersonalInfoForm';
 import ExperienceForm from './forms/ExperienceForm';
 import EducationForm from './forms/EducationForm';
 import SkillsForm from './forms/SkillsForm';
+import TemplateSelector from './TemplateSelector';
 import ResumePreview from '../preview/ResumePreview';
-import { GripVertical, FileText, User, Briefcase, GraduationCap, Award } from 'lucide-react';
+import ExportButton from './ExportButton';
+import ThemeToggle from './ThemeToggle';
+import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette } from 'lucide-react';
 
 const ResumeBuilder = () => {
   const { state, dispatch } = useResume();
@@ -42,65 +45,86 @@ const ResumeBuilder = () => {
         return <EducationForm />;
       case 'skills':
         return <SkillsForm />;
+      case 'templates':
+        return <TemplateSelector />;
       default:
         return null;
     }
   };
 
+  const allSections = [
+    ...state.resume.sections,
+    { id: 'templates', type: 'templates' as const, title: 'Templates', isVisible: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className={`min-h-screen ${state.resume.theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <header className={`border-b px-6 py-4 ${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <FileText className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
+            <FileText className={`w-8 h-8 ${state.resume.theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
+            <h1 className={`text-2xl font-bold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Resume Builder
+            </h1>
           </div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Export PDF
-          </button>
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
+            <ExportButton />
+          </div>
         </div>
       </header>
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Sidebar - Builder */}
-        <div className="w-1/2 bg-white border-r border-gray-200 overflow-y-auto">
+        <div className={`w-1/2 border-r overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Resume Sections</h2>
+            <h2 className={`text-lg font-semibold mb-4 ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Resume Sections
+            </h2>
             
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="sections">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                    {state.resume.sections.map((section, index) => (
-                      <Draggable key={section.id} draggableId={section.id} index={index}>
+                    {allSections.map((section, index) => (
+                      <Draggable 
+                        key={section.id} 
+                        draggableId={section.id} 
+                        index={index}
+                        isDragDisabled={section.type === 'templates'}
+                      >
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                               snapshot.isDragging 
-                                ? 'shadow-lg bg-blue-50 border-blue-300 transform rotate-2' 
-                                : 'bg-white border-gray-200 hover:border-gray-300'
+                                ? `shadow-lg transform rotate-2 ${state.resume.theme === 'dark' ? 'bg-gray-700 border-blue-400' : 'bg-blue-50 border-blue-300'}` 
+                                : `${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-600 hover:border-gray-500' : 'bg-white border-gray-200 hover:border-gray-300'}`
                             } ${
                               state.activeSection === section.id 
-                                ? 'ring-2 ring-blue-500 border-blue-500' 
+                                ? `ring-2 ${state.resume.theme === 'dark' ? 'ring-blue-400 border-blue-400' : 'ring-blue-500 border-blue-500'}` 
                                 : ''
                             }`}
                           >
                             <div
-                              {...provided.dragHandleProps}
-                              className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+                              {...(section.type !== 'templates' ? provided.dragHandleProps : {})}
+                              className={`flex items-center justify-between p-4 cursor-pointer ${state.resume.theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                               onClick={() => dispatch({ type: 'SET_ACTIVE_SECTION', payload: section.id })}
                             >
                               <div className="flex items-center space-x-3">
-                                {getSectionIcon(section.type)}
-                                <span className="font-medium text-gray-900">{section.title}</span>
+                                {section.type === 'templates' ? <Palette className="w-4 h-4" /> : getSectionIcon(section.type)}
+                                <span className={`font-medium ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                  {section.title}
+                                </span>
                               </div>
-                              <GripVertical className="w-5 h-5 text-gray-400" />
+                              {section.type !== 'templates' && (
+                                <GripVertical className={`w-5 h-5 ${state.resume.theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
+                              )}
                             </div>
                             
                             {state.activeSection === section.id && (
-                              <div className="border-t border-gray-200 p-4 bg-gray-50">
+                              <div className={`border-t p-4 ${state.resume.theme === 'dark' ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
                                 {renderSectionForm(section.type)}
                               </div>
                             )}
@@ -117,9 +141,11 @@ const ResumeBuilder = () => {
         </div>
 
         {/* Right Side - Preview */}
-        <div className="w-1/2 bg-gray-100 overflow-y-auto">
+        <div className={`w-1/2 overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
+            <h2 className={`text-lg font-semibold mb-4 ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Live Preview
+            </h2>
             <div className="bg-white rounded-lg shadow-lg">
               <ResumePreview />
             </div>

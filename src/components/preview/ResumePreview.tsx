@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useResume } from '../../context/ResumeContext';
 import { Mail, Phone, MapPin, Calendar } from 'lucide-react';
@@ -31,15 +30,50 @@ const ResumePreview = () => {
     );
   };
 
+  const getTemplateStyles = () => {
+    switch (resume.template) {
+      case 'classic':
+        return {
+          headerBg: 'bg-gray-100',
+          primaryColor: 'text-gray-800',
+          accentColor: 'text-gray-600',
+          borderColor: 'border-gray-300'
+        };
+      case 'creative':
+        return {
+          headerBg: 'bg-gradient-to-r from-purple-600 to-blue-600',
+          primaryColor: 'text-white',
+          accentColor: 'text-purple-100',
+          borderColor: 'border-purple-300'
+        };
+      case 'minimal':
+        return {
+          headerBg: 'bg-white',
+          primaryColor: 'text-black',
+          accentColor: 'text-gray-500',
+          borderColor: 'border-gray-200'
+        };
+      default: // modern
+        return {
+          headerBg: 'bg-white',
+          primaryColor: 'text-gray-900',
+          accentColor: 'text-blue-600',
+          borderColor: 'border-blue-200'
+        };
+    }
+  };
+
+  const styles = getTemplateStyles();
+
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white min-h-[11in]" id="resume-preview">
-      {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+      {/* Header with template-specific styling */}
+      <header className={`mb-8 p-6 rounded-lg ${styles.headerBg} ${resume.template === 'creative' ? 'text-white' : ''}`}>
+        <h1 className={`text-4xl font-bold mb-2 ${resume.template === 'creative' ? 'text-white' : styles.primaryColor}`}>
           {resume.personalInfo.fullName || 'Your Full Name'}
         </h1>
         
-        <div className="flex flex-wrap items-center gap-4 text-gray-600">
+        <div className={`flex flex-wrap items-center gap-4 ${resume.template === 'creative' ? 'text-purple-100' : 'text-gray-600'}`}>
           {resume.personalInfo.email && (
             <div className="flex items-center space-x-1">
               <Mail className="w-4 h-4" />
@@ -62,12 +96,14 @@ const ResumePreview = () => {
 
         {resume.personalInfo.summary && (
           <div className="mt-4">
-            <p className="text-gray-700 leading-relaxed">{resume.personalInfo.summary}</p>
+            <p className={`leading-relaxed ${resume.template === 'creative' ? 'text-purple-100' : 'text-gray-700'}`}>
+              {resume.personalInfo.summary}
+            </p>
           </div>
         )}
       </header>
 
-      {/* Dynamic Sections based on order */}
+      {/* Dynamic Sections with template styling */}
       {resume.sections
         .filter(section => section.isVisible)
         .map((section) => {
@@ -75,7 +111,7 @@ const ResumePreview = () => {
             case 'experience':
               return resume.experience.length > 0 ? (
                 <section key={section.id} className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                  <h2 className={`text-2xl font-bold mb-4 pb-2 border-b ${styles.primaryColor} ${styles.borderColor}`}>
                     Work Experience
                   </h2>
                   <div className="space-y-6">
@@ -83,10 +119,10 @@ const ResumePreview = () => {
                       <div key={exp.id} className="relative">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className={`text-lg font-semibold ${styles.primaryColor}`}>
                               {exp.position || 'Position Title'}
                             </h3>
-                            <p className="text-blue-600 font-medium">
+                            <p className={`font-medium ${styles.accentColor}`}>
                               {exp.company || 'Company Name'}
                             </p>
                           </div>
@@ -113,17 +149,17 @@ const ResumePreview = () => {
             case 'education':
               return resume.education.length > 0 ? (
                 <section key={section.id} className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                  <h2 className={`text-2xl font-bold mb-4 pb-2 border-b ${styles.primaryColor} ${styles.borderColor}`}>
                     Education
                   </h2>
                   <div className="space-y-4">
                     {resume.education.map((edu) => (
                       <div key={edu.id} className="flex justify-between items-start">
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className={`text-lg font-semibold ${styles.primaryColor}`}>
                             {edu.degree || 'Degree'} {edu.field && `in ${edu.field}`}
                           </h3>
-                          <p className="text-blue-600 font-medium">
+                          <p className={`font-medium ${styles.accentColor}`}>
                             {edu.institution || 'Institution Name'}
                           </p>
                         </div>
@@ -142,13 +178,13 @@ const ResumePreview = () => {
             case 'skills':
               return resume.skills.length > 0 ? (
                 <section key={section.id} className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                  <h2 className={`text-2xl font-bold mb-4 pb-2 border-b ${styles.primaryColor} ${styles.borderColor}`}>
                     Skills
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {resume.skills.map((skill) => (
                       <div key={skill.id} className="flex items-center justify-between">
-                        <span className="text-gray-900 font-medium">
+                        <span className={`font-medium ${styles.primaryColor}`}>
                           {skill.name || 'Skill Name'}
                         </span>
                         <div className="flex items-center space-x-2">
