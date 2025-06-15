@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useResume } from '../../context/ResumeContext';
@@ -11,10 +12,11 @@ import ProjectsForm from './forms/ProjectsForm';
 import PositionsForm from './forms/PositionsForm';
 import CertificationsForm from './forms/CertificationsForm';
 import TemplateSelector from './TemplateSelector';
+import ResumeValidator from './ResumeValidator';
 import ResumePreview from '../preview/ResumePreview';
 import ExportButton from './ExportButton';
 import ThemeToggle from './ThemeToggle';
-import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette, Link, Code, FolderOpen, Users, Star } from 'lucide-react';
+import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette, Link, Code, FolderOpen, Users, Star, CheckSquare } from 'lucide-react';
 
 const ResumeBuilder = () => {
   const { state, dispatch } = useResume();
@@ -66,6 +68,8 @@ const ResumeBuilder = () => {
         return <CertificationsForm />;
       case 'templates':
         return <TemplateSelector />;
+      case 'validator':
+        return <ResumeValidator />;
       default:
         return null;
     }
@@ -73,7 +77,8 @@ const ResumeBuilder = () => {
 
   const allSections = [
     ...state.resume.sections,
-    { id: 'templates', type: 'templates' as const, title: 'Templates', isVisible: true }
+    { id: 'templates', type: 'templates' as const, title: 'Templates', isVisible: true },
+    { id: 'validator', type: 'validator' as const, title: 'Resume Score', isVisible: true }
   ];
 
   return (
@@ -82,9 +87,14 @@ const ResumeBuilder = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <FileText className={`w-8 h-8 ${state.resume.theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
-            <h1 className={`text-2xl font-bold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Resume Builder
-            </h1>
+            <div>
+              <h1 className={`text-2xl font-bold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Resume Builder Pro
+              </h1>
+              <p className={`text-sm ${state.resume.theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Create ATS-friendly professional resumes
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-3">
             <ThemeToggle />
@@ -93,7 +103,7 @@ const ResumeBuilder = () => {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-100px)]">
         {/* Left Sidebar - Builder */}
         <div className={`w-1/2 border-r overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
           <div className="p-6">
@@ -110,7 +120,7 @@ const ResumeBuilder = () => {
                         key={section.id} 
                         draggableId={section.id} 
                         index={index}
-                        isDragDisabled={section.type === 'templates'}
+                        isDragDisabled={section.type === 'templates' || section.type === 'validator'}
                       >
                         {(provided, snapshot) => (
                           <div
@@ -127,17 +137,23 @@ const ResumeBuilder = () => {
                             }`}
                           >
                             <div
-                              {...(section.type !== 'templates' ? provided.dragHandleProps : {})}
+                              {...(section.type !== 'templates' && section.type !== 'validator' ? provided.dragHandleProps : {})}
                               className={`flex items-center justify-between p-4 cursor-pointer ${state.resume.theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                               onClick={() => dispatch({ type: 'SET_ACTIVE_SECTION', payload: section.id })}
                             >
                               <div className="flex items-center space-x-3">
-                                {section.type === 'templates' ? <Palette className="w-4 h-4" /> : getSectionIcon(section.type)}
+                                {section.type === 'templates' ? (
+                                  <Palette className="w-4 h-4" />
+                                ) : section.type === 'validator' ? (
+                                  <CheckSquare className="w-4 h-4" />
+                                ) : (
+                                  getSectionIcon(section.type)
+                                )}
                                 <span className={`font-medium ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                   {section.title}
                                 </span>
                               </div>
-                              {section.type !== 'templates' && (
+                              {section.type !== 'templates' && section.type !== 'validator' && (
                                 <GripVertical className={`w-5 h-5 ${state.resume.theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                               )}
                             </div>
@@ -162,10 +178,15 @@ const ResumeBuilder = () => {
         {/* Right Side - Preview */}
         <div className={`w-1/2 overflow-y-auto ${state.resume.theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
           <div className="p-6">
-            <h2 className={`text-lg font-semibold mb-4 ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Live Preview
-            </h2>
-            <div className="bg-white rounded-lg shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`text-lg font-semibold ${state.resume.theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Live Preview
+              </h2>
+              <div className="text-xs text-gray-500 bg-green-100 px-2 py-1 rounded">
+                A4 Format • ATS Optimized
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
               <ResumePreview />
             </div>
           </div>
