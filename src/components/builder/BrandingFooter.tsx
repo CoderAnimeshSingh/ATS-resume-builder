@@ -27,7 +27,7 @@ const BrandingFooter = () => {
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://github.com"
+                href="https://github.com/CoderAnimeshSingh"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-gray-600 transition-colors duration-200 hover:scale-110 transform"
@@ -36,7 +36,7 @@ const BrandingFooter = () => {
                 <Github className="w-5 h-5" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/animeshsingh9693/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-blue-600 transition-colors duration-200 hover:scale-110 transform"
@@ -45,7 +45,7 @@ const BrandingFooter = () => {
                 <Linkedin className="w-5 h-5" />
               </a>
               <a
-                href="mailto:contact@resumebuilder.com"
+                href="mailto:ani.yug272@gmail.com"
                 className="text-gray-400 hover:text-green-600 transition-colors duration-200 hover:scale-110 transform"
                 aria-label="Email"
               >
