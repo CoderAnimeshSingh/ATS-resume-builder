@@ -1,16 +1,20 @@
+
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useResume } from '../../context/ResumeContext';
 import PersonalInfoForm from './forms/PersonalInfoForm';
+import SocialLinksForm from './forms/SocialLinksForm';
 import ExperienceForm from './forms/ExperienceForm';
 import EducationForm from './forms/EducationForm';
-import SkillsForm from './forms/SkillsForm';
+import TechnicalSkillsForm from './forms/TechnicalSkillsForm';
+import ProjectsForm from './forms/ProjectsForm';
+import PositionsForm from './forms/PositionsForm';
 import CertificationsForm from './forms/CertificationsForm';
 import TemplateSelector from './TemplateSelector';
 import ResumePreview from '../preview/ResumePreview';
 import ExportButton from './ExportButton';
 import ThemeToggle from './ThemeToggle';
-import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette } from 'lucide-react';
+import { GripVertical, FileText, User, Briefcase, GraduationCap, Award, Palette, Link, Code, FolderOpen, Users } from 'lucide-react';
 
 const ResumeBuilder = () => {
   const { state, dispatch } = useResume();
@@ -28,10 +32,13 @@ const ResumeBuilder = () => {
   const getSectionIcon = (type: string) => {
     switch (type) {
       case 'personal': return <User className="w-4 h-4" />;
+      case 'links': return <Link className="w-4 h-4" />;
       case 'experience': return <Briefcase className="w-4 h-4" />;
       case 'education': return <GraduationCap className="w-4 h-4" />;
+      case 'technicalSkills': return <Code className="w-4 h-4" />;
+      case 'projects': return <FolderOpen className="w-4 h-4" />;
+      case 'positions': return <Users className="w-4 h-4" />;
       case 'certifications': return <Award className="w-4 h-4" />;
-      case 'skills': return <Award className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }
   };
@@ -40,14 +47,20 @@ const ResumeBuilder = () => {
     switch (sectionType) {
       case 'personal':
         return <PersonalInfoForm />;
+      case 'links':
+        return <SocialLinksForm />;
       case 'experience':
         return <ExperienceForm />;
       case 'education':
         return <EducationForm />;
+      case 'technicalSkills':
+        return <TechnicalSkillsForm />;
+      case 'projects':
+        return <ProjectsForm />;
+      case 'positions':
+        return <PositionsForm />;
       case 'certifications':
         return <CertificationsForm />;
-      case 'skills':
-        return <SkillsForm />;
       case 'templates':
         return <TemplateSelector />;
       default:

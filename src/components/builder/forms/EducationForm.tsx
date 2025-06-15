@@ -13,7 +13,8 @@ const EducationForm = () => {
       institution: '',
       degree: '',
       field: '',
-      graduationDate: ''
+      graduationDate: '',
+      cgpa: ''
     };
     dispatch({ type: 'ADD_EDUCATION', payload: newEducation });
   };
@@ -64,7 +65,7 @@ const EducationForm = () => {
                 value={edu.institution}
                 onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="University Name"
+                placeholder="Delhi Skill and Entrepreneurship University"
               />
             </div>
 
@@ -77,7 +78,7 @@ const EducationForm = () => {
                 value={edu.degree}
                 onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Bachelor's, Master's, etc."
+                placeholder="Bachelor of Computer Applications"
               />
             </div>
 
@@ -90,7 +91,7 @@ const EducationForm = () => {
                 value={edu.field}
                 onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Computer Science, Business, etc."
+                placeholder="BCA"
               />
             </div>
 
@@ -105,18 +106,31 @@ const EducationForm = () => {
                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                CGPA/Percentage (Optional)
+              </label>
+              <input
+                type="text"
+                value={edu.cgpa || ''}
+                onChange={(e) => updateEducation(edu.id, 'cgpa', e.target.value)}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="8.5 / 10"
+              />
+            </div>
           </div>
         </div>
       ))}
 
       {education.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          <p className="text-sm">No education added yet.</p>
+          <p className="text-sm">No education entries added yet.</p>
           <button
             onClick={addEducation}
             className="mt-2 text-blue-600 hover:text-blue-800 text-sm"
           >
-            Add your first education
+            Add your first education entry
           </button>
         </div>
       )}

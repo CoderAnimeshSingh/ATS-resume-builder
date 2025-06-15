@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 export interface PersonalInfo {
@@ -6,6 +7,13 @@ export interface PersonalInfo {
   phone: string;
   location: string;
   summary: string;
+}
+
+export interface SocialLink {
+  id: string;
+  platform: string;
+  url: string;
+  username: string;
 }
 
 export interface Experience {
@@ -23,12 +31,28 @@ export interface Education {
   degree: string;
   field: string;
   graduationDate: string;
+  cgpa?: string;
 }
 
-export interface Skill {
+export interface TechnicalSkill {
   id: string;
-  name: string;
-  level: string;
+  category: string;
+  skills: string[];
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  technologies: string;
+  highlights: string[];
+}
+
+export interface Position {
+  id: string;
+  title: string;
+  organization: string;
+  description: string;
 }
 
 export interface Certification {
@@ -41,17 +65,20 @@ export interface Certification {
 
 export interface ResumeSection {
   id: string;
-  type: 'personal' | 'experience' | 'education' | 'skills' | 'certifications';
+  type: 'personal' | 'links' | 'experience' | 'education' | 'technicalSkills' | 'projects' | 'positions' | 'certifications';
   title: string;
   isVisible: boolean;
 }
 
 export interface ResumeData {
   personalInfo: PersonalInfo;
+  socialLinks: SocialLink[];
   experience: Experience[];
   education: Education[];
+  technicalSkills: TechnicalSkill[];
+  projects: Project[];
+  positions: Position[];
   certifications: Certification[];
-  skills: Skill[];
   sections: ResumeSection[];
   template: string;
   theme: 'light' | 'dark';
@@ -64,15 +91,24 @@ interface ResumeState {
 
 type ResumeAction =
   | { type: 'UPDATE_PERSONAL_INFO'; payload: Partial<PersonalInfo> }
+  | { type: 'ADD_SOCIAL_LINK'; payload: SocialLink }
+  | { type: 'UPDATE_SOCIAL_LINK'; payload: { id: string; data: Partial<SocialLink> } }
+  | { type: 'DELETE_SOCIAL_LINK'; payload: string }
   | { type: 'ADD_EXPERIENCE'; payload: Experience }
   | { type: 'UPDATE_EXPERIENCE'; payload: { id: string; data: Partial<Experience> } }
   | { type: 'DELETE_EXPERIENCE'; payload: string }
   | { type: 'ADD_EDUCATION'; payload: Education }
   | { type: 'UPDATE_EDUCATION'; payload: { id: string; data: Partial<Education> } }
   | { type: 'DELETE_EDUCATION'; payload: string }
-  | { type: 'ADD_SKILL'; payload: Skill }
-  | { type: 'UPDATE_SKILL'; payload: { id: string; data: Partial<Skill> } }
-  | { type: 'DELETE_SKILL'; payload: string }
+  | { type: 'ADD_TECHNICAL_SKILL'; payload: TechnicalSkill }
+  | { type: 'UPDATE_TECHNICAL_SKILL'; payload: { id: string; data: Partial<TechnicalSkill> } }
+  | { type: 'DELETE_TECHNICAL_SKILL'; payload: string }
+  | { type: 'ADD_PROJECT'; payload: Project }
+  | { type: 'UPDATE_PROJECT'; payload: { id: string; data: Partial<Project> } }
+  | { type: 'DELETE_PROJECT'; payload: string }
+  | { type: 'ADD_POSITION'; payload: Position }
+  | { type: 'UPDATE_POSITION'; payload: { id: string; data: Partial<Position> } }
+  | { type: 'DELETE_POSITION'; payload: string }
   | { type: 'ADD_CERTIFICATION'; payload: Certification }
   | { type: 'UPDATE_CERTIFICATION'; payload: { id: string; data: Partial<Certification> } }
   | { type: 'DELETE_CERTIFICATION'; payload: string }
@@ -90,16 +126,22 @@ const initialResumeData: ResumeData = {
     location: '',
     summary: ''
   },
+  socialLinks: [],
   experience: [],
   education: [],
+  technicalSkills: [],
+  projects: [],
+  positions: [],
   certifications: [],
-  skills: [],
   sections: [
     { id: 'personal', type: 'personal', title: 'Personal Information', isVisible: true },
-    { id: 'experience', type: 'experience', title: 'Work Experience', isVisible: true },
+    { id: 'links', type: 'links', title: 'Social Links', isVisible: true },
     { id: 'education', type: 'education', title: 'Education', isVisible: true },
-    { id: 'certifications', type: 'certifications', title: 'Certifications', isVisible: true },
-    { id: 'skills', type: 'skills', title: 'Skills', isVisible: true }
+    { id: 'technicalSkills', type: 'technicalSkills', title: 'Technical Skills', isVisible: true },
+    { id: 'experience', type: 'experience', title: 'Work Experience', isVisible: true },
+    { id: 'projects', type: 'projects', title: 'Academic Projects', isVisible: true },
+    { id: 'positions', type: 'positions', title: 'Positions of Responsibility', isVisible: true },
+    { id: 'certifications', type: 'certifications', title: 'Certifications', isVisible: true }
   ],
   template: 'modern',
   theme: 'light'
@@ -118,6 +160,32 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
         resume: {
           ...state.resume,
           personalInfo: { ...state.resume.personalInfo, ...action.payload }
+        }
+      };
+    case 'ADD_SOCIAL_LINK':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          socialLinks: [...state.resume.socialLinks, action.payload]
+        }
+      };
+    case 'UPDATE_SOCIAL_LINK':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          socialLinks: state.resume.socialLinks.map(link =>
+            link.id === action.payload.id ? { ...link, ...action.payload.data } : link
+          )
+        }
+      };
+    case 'DELETE_SOCIAL_LINK':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          socialLinks: state.resume.socialLinks.filter(link => link.id !== action.payload)
         }
       };
     case 'ADD_EXPERIENCE':
@@ -172,30 +240,82 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
           education: state.resume.education.filter(edu => edu.id !== action.payload)
         }
       };
-    case 'ADD_SKILL':
+    case 'ADD_TECHNICAL_SKILL':
       return {
         ...state,
         resume: {
           ...state.resume,
-          skills: [...state.resume.skills, action.payload]
+          technicalSkills: [...state.resume.technicalSkills, action.payload]
         }
       };
-    case 'UPDATE_SKILL':
+    case 'UPDATE_TECHNICAL_SKILL':
       return {
         ...state,
         resume: {
           ...state.resume,
-          skills: state.resume.skills.map(skill =>
+          technicalSkills: state.resume.technicalSkills.map(skill =>
             skill.id === action.payload.id ? { ...skill, ...action.payload.data } : skill
           )
         }
       };
-    case 'DELETE_SKILL':
+    case 'DELETE_TECHNICAL_SKILL':
       return {
         ...state,
         resume: {
           ...state.resume,
-          skills: state.resume.skills.filter(skill => skill.id !== action.payload)
+          technicalSkills: state.resume.technicalSkills.filter(skill => skill.id !== action.payload)
+        }
+      };
+    case 'ADD_PROJECT':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          projects: [...state.resume.projects, action.payload]
+        }
+      };
+    case 'UPDATE_PROJECT':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          projects: state.resume.projects.map(project =>
+            project.id === action.payload.id ? { ...project, ...action.payload.data } : project
+          )
+        }
+      };
+    case 'DELETE_PROJECT':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          projects: state.resume.projects.filter(project => project.id !== action.payload)
+        }
+      };
+    case 'ADD_POSITION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          positions: [...state.resume.positions, action.payload]
+        }
+      };
+    case 'UPDATE_POSITION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          positions: state.resume.positions.map(position =>
+            position.id === action.payload.id ? { ...position, ...action.payload.data } : position
+          )
+        }
+      };
+    case 'DELETE_POSITION':
+      return {
+        ...state,
+        resume: {
+          ...state.resume,
+          positions: state.resume.positions.filter(position => position.id !== action.payload)
         }
       };
     case 'ADD_CERTIFICATION':
