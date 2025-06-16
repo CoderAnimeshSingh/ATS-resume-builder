@@ -28,7 +28,8 @@ const TechnicalSkillsForm = () => {
   };
 
   const handleSkillsChange = (id: string, value: string) => {
-    // Split by comma, trim whitespace, and filter out empty strings
+    // Always update with the raw string value first to show what user is typing
+    // Then split by comma, trim whitespace, and filter out empty strings for the actual skills array
     const skillsArray = value
       .split(',')
       .map(skill => skill.trim())

@@ -6,10 +6,21 @@ export const exportToPDF = async (filename: string = 'resume') => {
   const element = document.getElementById('resume-preview');
   if (!element) {
     console.error('Resume preview element not found');
+    alert('Resume preview not found. Please make sure your resume content is visible.');
     return;
   }
 
+  console.log('Starting PDF export for element:', element);
+  console.log('Element content preview:', element.textContent?.substring(0, 100));
+
   try {
+    // Ensure the element is visible and has content
+    if (element.offsetHeight === 0 || element.offsetWidth === 0) {
+      console.error('Resume preview element has no dimensions');
+      alert('Resume preview appears to be empty or hidden. Please check your resume content.');
+      return;
+    }
+
     // Hide any non-essential elements during export
     const elementsToHide = element.querySelectorAll('.no-print');
     elementsToHide.forEach(el => (el as HTMLElement).style.display = 'none');
@@ -18,63 +29,55 @@ export const exportToPDF = async (filename: string = 'resume') => {
     const originalPointerEvents = element.style.pointerEvents;
     element.style.pointerEvents = 'none';
 
-    // Add print-specific styles for better PDF rendering
-    const printStyles = document.createElement('style');
-    printStyles.textContent = `
-      @media print {
-        * { 
-          -webkit-print-color-adjust: exact !important; 
-          color-adjust: exact !important; 
-          print-color-adjust: exact !important;
-        }
-        .break-inside-avoid { 
-          break-inside: avoid !important; 
-          page-break-inside: avoid !important; 
-        }
-        a { 
-          text-decoration: none !important; 
-          color: inherit !important; 
-        }
-        #resume-preview {
-          box-shadow: none !important;
-          border: none !important;
-          margin: 0 !important;
-          padding: 20mm !important;
-          width: 210mm !important;
-          min-height: 297mm !important;
-          font-family: Arial, sans-serif !important;
-          background: white !important;
-        }
-      }
-    `;
-    document.head.appendChild(printStyles);
+    // Ensure proper styling for PDF generation
+    const originalStyles = {
+      position: element.style.position,
+      left: element.style.left,
+      top: element.style.top,
+      zIndex: element.style.zIndex,
+      transform: element.style.transform
+    };
 
-    // Wait for fonts and styles to load
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Set element to be properly positioned for capture
+    element.style.position = 'relative';
+    element.style.left = 'auto';
+    element.style.top = 'auto';
+    element.style.zIndex = 'auto';
+    element.style.transform = 'none';
+
+    // Wait for any pending renders
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    console.log('Capturing element with html2canvas...');
+    console.log('Element dimensions:', element.offsetWidth, 'x', element.offsetHeight);
 
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
-      width: 794, // A4 width at 96 DPI (210mm)
-      height: Math.max(element.scrollHeight, 1123), // Minimum A4 height (297mm)
       scrollX: 0,
       scrollY: 0,
+      width: element.offsetWidth,
+      height: element.offsetHeight,
+      logging: true,
       removeContainer: false,
       imageTimeout: 0,
-      logging: false,
-      foreignObjectRendering: true,
+      foreignObjectRendering: false,
       onclone: (clonedDoc) => {
+        console.log('Cloning document for capture...');
         const clonedElement = clonedDoc.getElementById('resume-preview');
         if (clonedElement) {
           // Ensure proper styling in cloned document
-          clonedElement.style.width = '794px';
-          clonedElement.style.padding = '75px'; // 20mm in pixels
+          clonedElement.style.width = element.offsetWidth + 'px';
+          clonedElement.style.height = 'auto';
+          clonedElement.style.minHeight = element.offsetHeight + 'px';
           clonedElement.style.fontFamily = 'Arial, sans-serif';
           clonedElement.style.fontSize = '11px';
           clonedElement.style.lineHeight = '1.4';
           clonedElement.style.backgroundColor = '#ffffff';
+          clonedElement.style.color = '#000000';
+          clonedElement.style.padding = '20mm';
           
           // Fix social links formatting
           const socialLinks = clonedElement.querySelectorAll('a');
@@ -82,21 +85,30 @@ export const exportToPDF = async (filename: string = 'resume') => {
             link.style.color = 'inherit';
             link.style.textDecoration = 'none';
           });
+
+          console.log('Cloned element configured');
         }
       }
     });
 
-    // Remove print styles
-    document.head.removeChild(printStyles);
-    
-    // Restore hover effects
+    console.log('Canvas created successfully:', canvas.width, 'x', canvas.height);
+
+    // Restore original styles
+    Object.assign(element.style, originalStyles);
     element.style.pointerEvents = originalPointerEvents;
     
     // Restore hidden elements
     elementsToHide.forEach(el => (el as HTMLElement).style.display = '');
 
+    if (canvas.width === 0 || canvas.height === 0) {
+      console.error('Canvas has no dimensions');
+      alert('Failed to capture resume content. Please try again.');
+      return;
+    }
+
     const imgData = canvas.toDataURL('image/png', 1.0);
-    
+    console.log('Image data created, length:', imgData.length);
+
     // Create PDF with A4 dimensions (210 x 297 mm)
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -110,12 +122,16 @@ export const exportToPDF = async (filename: string = 'resume') => {
     const imgWidth = pdfWidth;
     const imgHeight = (canvas.height * pdfWidth) / canvas.width;
     
-    // Calculate if content needs multiple pages
+    console.log('PDF dimensions calculated:', imgWidth, 'x', imgHeight);
+
+    // Add the image to PDF
     if (imgHeight <= pdfHeight) {
       // Content fits in one page
+      console.log('Adding single page to PDF');
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
     } else {
       // Content requires multiple pages
+      console.log('Adding multiple pages to PDF');
       let heightLeft = imgHeight;
       let position = 0;
       let pageNumber = 0;
@@ -125,8 +141,8 @@ export const exportToPDF = async (filename: string = 'resume') => {
       heightLeft -= pdfHeight;
       pageNumber++;
 
-      // Add additional pages only if there's meaningful content
-      while (heightLeft > 30) { // 30mm threshold to avoid nearly empty pages
+      // Add additional pages if needed
+      while (heightLeft > 20) { // 20mm threshold to avoid nearly empty pages
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
@@ -134,7 +150,10 @@ export const exportToPDF = async (filename: string = 'resume') => {
         pageNumber++;
         
         // Safety limit to prevent infinite pages
-        if (pageNumber > 3) break;
+        if (pageNumber > 5) {
+          console.warn('Reached maximum page limit');
+          break;
+        }
       }
     }
 
@@ -147,11 +166,14 @@ export const exportToPDF = async (filename: string = 'resume') => {
       keywords: 'resume, cv, professional, ATS'
     });
 
+    console.log('Saving PDF...');
     pdf.save(`${filename}.pdf`);
     
     console.log('PDF exported successfully');
+    alert('PDF exported successfully!');
   } catch (error) {
     console.error('Error generating PDF:', error);
+    alert('Error generating PDF. Please check the console for details and try again.');
     throw error;
   }
 };
