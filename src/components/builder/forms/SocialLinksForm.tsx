@@ -82,19 +82,6 @@ const SocialLinksForm = () => {
 
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                Username/Handle
-              </label>
-              <input
-                type="text"
-                value={link.username}
-                onChange={(e) => updateSocialLink(link.id, 'username', e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="your-username"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Full URL
               </label>
               <input
@@ -102,8 +89,11 @@ const SocialLinksForm = () => {
                 value={link.url}
                 onChange={(e) => updateSocialLink(link.id, 'url', e.target.value)}
                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="https://..."
+                placeholder="https://linkedin.com/in/yourprofile"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the complete URL including https://
+              </p>
             </div>
           </div>
         </div>

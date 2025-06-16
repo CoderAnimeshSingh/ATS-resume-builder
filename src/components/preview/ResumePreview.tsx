@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useResume } from '../../context/ResumeContext';
-import { Mail, Phone, MapPin, Calendar, ExternalLink } from 'lucide-react';
+import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
 
 const ResumePreview = () => {
   const { state } = useResume();
@@ -103,8 +103,8 @@ const ResumePreview = () => {
               {resume.socialLinks.map((link) => (
                 <span key={link.id} className="flex items-center gap-1">
                   <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                  <span className="break-all">
-                    {link.platform}: {link.username || link.url}
+                  <span>
+                    {link.platform}: {link.url || 'URL not provided'}
                   </span>
                 </span>
               ))}

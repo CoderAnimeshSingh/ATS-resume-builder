@@ -28,13 +28,13 @@ const TechnicalSkillsForm = () => {
   };
 
   const handleSkillsChange = (id: string, value: string) => {
-    // Always update with the raw string value first to show what user is typing
-    // Then split by comma, trim whitespace, and filter out empty strings for the actual skills array
+    // Split by comma, trim whitespace, and filter out empty strings
     const skillsArray = value
       .split(',')
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0);
     
+    // Update the skills array in the state
     updateTechnicalSkill(id, 'skills', skillsArray);
   };
 
@@ -96,12 +96,24 @@ const TechnicalSkillsForm = () => {
               value={skillCategory.skills.join(', ')}
               onChange={(e) => handleSkillsChange(skillCategory.id, e.target.value)}
               rows={3}
-              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-vertical"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
               placeholder="Java, Python, JavaScript, React, Node.js"
             />
             <p className="text-xs text-gray-500 mt-1">
               Type skills separated by commas. Example: Java, Python, JavaScript
             </p>
+            {skillCategory.skills.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {skillCategory.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ))}

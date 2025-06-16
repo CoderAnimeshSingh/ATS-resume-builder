@@ -10,8 +10,7 @@ export const exportToPDF = async (filename: string = 'resume') => {
     return;
   }
 
-  console.log('Starting PDF export for element:', element);
-  console.log('Element content preview:', element.textContent?.substring(0, 100));
+  console.log('Starting PDF export...');
 
   try {
     // Ensure the element is visible and has content
@@ -21,38 +20,14 @@ export const exportToPDF = async (filename: string = 'resume') => {
       return;
     }
 
-    // Hide any non-essential elements during export
-    const elementsToHide = element.querySelectorAll('.no-print');
-    elementsToHide.forEach(el => (el as HTMLElement).style.display = 'none');
-
-    // Temporarily disable hover effects and interactions for PDF
-    const originalPointerEvents = element.style.pointerEvents;
-    element.style.pointerEvents = 'none';
-
-    // Ensure proper styling for PDF generation
-    const originalStyles = {
-      position: element.style.position,
-      left: element.style.left,
-      top: element.style.top,
-      zIndex: element.style.zIndex,
-      transform: element.style.transform
-    };
-
-    // Set element to be properly positioned for capture
-    element.style.position = 'relative';
-    element.style.left = 'auto';
-    element.style.top = 'auto';
-    element.style.zIndex = 'auto';
-    element.style.transform = 'none';
-
     // Wait for any pending renders
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     console.log('Capturing element with html2canvas...');
     console.log('Element dimensions:', element.offsetWidth, 'x', element.offsetHeight);
 
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
@@ -60,12 +35,15 @@ export const exportToPDF = async (filename: string = 'resume') => {
       scrollY: 0,
       width: element.offsetWidth,
       height: element.offsetHeight,
-      logging: true,
+      logging: false,
       removeContainer: false,
-      imageTimeout: 0,
+      imageTimeout: 15000,
       foreignObjectRendering: false,
+      ignoreElements: (element) => {
+        return element.classList?.contains('no-print') || false;
+      },
       onclone: (clonedDoc) => {
-        console.log('Cloning document for capture...');
+        console.log('Processing cloned document...');
         const clonedElement = clonedDoc.getElementById('resume-preview');
         if (clonedElement) {
           // Ensure proper styling in cloned document
@@ -78,27 +56,24 @@ export const exportToPDF = async (filename: string = 'resume') => {
           clonedElement.style.backgroundColor = '#ffffff';
           clonedElement.style.color = '#000000';
           clonedElement.style.padding = '20mm';
+          clonedElement.style.boxSizing = 'border-box';
           
-          // Fix social links formatting
-          const socialLinks = clonedElement.querySelectorAll('a');
-          socialLinks.forEach(link => {
-            link.style.color = 'inherit';
-            link.style.textDecoration = 'none';
+          // Fix any potential styling issues
+          const allElements = clonedElement.querySelectorAll('*');
+          allElements.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.boxSizing = 'border-box';
+            if (htmlEl.style.color === 'rgb(0, 0, 0)' || htmlEl.style.color === '#000') {
+              htmlEl.style.color = '#000000';
+            }
           });
-
+          
           console.log('Cloned element configured');
         }
       }
     });
 
     console.log('Canvas created successfully:', canvas.width, 'x', canvas.height);
-
-    // Restore original styles
-    Object.assign(element.style, originalStyles);
-    element.style.pointerEvents = originalPointerEvents;
-    
-    // Restore hidden elements
-    elementsToHide.forEach(el => (el as HTMLElement).style.display = '');
 
     if (canvas.width === 0 || canvas.height === 0) {
       console.error('Canvas has no dimensions');
