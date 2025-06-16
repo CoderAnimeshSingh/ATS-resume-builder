@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -10,7 +9,6 @@ import { ScrollArea } from '../ui/scroll-area';
 import PersonalInfoForm from './forms/PersonalInfoForm';
 import SocialLinksForm from './forms/SocialLinksForm';
 import EducationForm from './forms/EducationForm';
-import SkillsForm from './forms/SkillsForm';
 import TechnicalSkillsForm from './forms/TechnicalSkillsForm';
 import ExperienceForm from './forms/ExperienceForm';
 import ProjectsForm from './forms/ProjectsForm';
@@ -50,8 +48,7 @@ const ResumeBuilder = () => {
     { id: 'personal', label: 'Personal Info', icon: User, component: PersonalInfoForm },
     { id: 'social', label: 'Social Links', icon: Link, component: SocialLinksForm },
     { id: 'education', label: 'Education', icon: GraduationCap, component: EducationForm },
-    { id: 'skills', label: 'Skills', icon: Code, component: SkillsForm },
-    { id: 'technical', label: 'Technical Skills', icon: Settings, component: TechnicalSkillsForm },
+    { id: 'technical', label: 'Technical Skills', icon: Code, component: TechnicalSkillsForm },
     { id: 'experience', label: 'Experience', icon: Briefcase, component: ExperienceForm },
     { id: 'projects', label: 'Projects', icon: FolderOpen, component: ProjectsForm },
     { id: 'positions', label: 'Positions', icon: Trophy, component: PositionsForm },
@@ -114,7 +111,7 @@ const ResumeBuilder = () => {
               <CardContent className="p-4 sm:p-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <ScrollArea className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1 h-auto p-1 bg-gray-100/50">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1 h-auto p-1 bg-gray-100/50">
                       {formSections.map((section) => {
                         const Icon = section.icon;
                         return (

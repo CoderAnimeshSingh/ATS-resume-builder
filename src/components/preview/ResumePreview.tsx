@@ -55,16 +55,14 @@ const ResumePreview = () => {
 
   return (
     <div className="w-full bg-white shadow-xl rounded-lg overflow-hidden">
-      {/* Responsive container that maintains A4 aspect ratio on larger screens */}
       <div 
-        className="mx-auto bg-white text-black font-sans leading-tight overflow-hidden"
+        className="mx-auto bg-white text-black font-sans leading-tight overflow-hidden print:shadow-none"
         id="resume-preview"
         style={{
-          // Responsive sizing
           width: '100%',
-          maxWidth: '794px', // A4 width at 96 DPI
+          maxWidth: '794px',
           minHeight: '600px',
-          padding: window.innerWidth < 640 ? '24px' : window.innerWidth < 1024 ? '32px' : '48px',
+          padding: window.innerWidth < 640 ? '20px' : window.innerWidth < 1024 ? '28px' : '40px',
           fontSize: window.innerWidth < 640 ? '10px' : '11px',
           lineHeight: '1.4'
         }}
@@ -75,7 +73,7 @@ const ResumePreview = () => {
             {resume.personalInfo.fullName || 'YOUR FULL NAME'}
           </h1>
           
-          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-xs text-gray-700">
+          <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs text-gray-700 mb-2">
             {resume.personalInfo.email && (
               <span className="flex items-center gap-1 break-all">
                 <Mail className="w-3 h-3 flex-shrink-0" />
@@ -96,15 +94,26 @@ const ResumePreview = () => {
             )}
           </div>
 
-          {/* Social Links */}
+          {/* Social Links - Fixed alignment and made clickable in preview only */}
           {resume.socialLinks && resume.socialLinks.length > 0 && (
-            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-xs text-blue-700 mt-2">
-              {resume.socialLinks.map((link, index) => (
-                <span key={link.id} className="flex items-center gap-1 break-all">
+            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs text-blue-700 mb-2">
+              {resume.socialLinks.map((link) => (
+                <span key={link.id} className="flex items-center gap-1 break-all print:pointer-events-none">
                   <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">
-                    {link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}: {link.username || link.url}
-                  </span>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="truncate max-w-[120px] sm:max-w-none hover:underline print:no-underline print:text-blue-700"
+                    onClick={(e) => {
+                      // Prevent clicks during PDF generation
+                      if (window.location.pathname.includes('pdf')) {
+                        e.preventDefault();
+                      }
+                    }}
+                  >
+                    {link.platform}: {link.username || link.url}
+                  </a>
                 </span>
               ))}
             </div>
@@ -119,20 +128,20 @@ const ResumePreview = () => {
         </header>
 
         {/* Dynamic Sections */}
-        <div className="space-y-3 sm:space-y-5">
+        <div className="space-y-3 sm:space-y-4">
           {resume.sections
             .filter(section => section.isVisible)
             .map((section) => {
               switch (section.type) {
                 case 'education':
                   return resume.education.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         EDUCATION
                       </h2>
                       <div className="space-y-2 sm:space-y-3">
                         {resume.education.map((edu) => (
-                          <div key={edu.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0">
+                          <div key={edu.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 break-inside-avoid">
                             <div className="flex-1">
                               <h3 className="font-semibold text-xs text-gray-900 break-words">
                                 {edu.degree} {edu.field && `in ${edu.field}`}
@@ -147,8 +156,8 @@ const ResumePreview = () => {
                               )}
                             </div>
                             {edu.graduationDate && (
-                              <div className="text-xs text-gray-600 sm:text-right">
-                                {formatDate(edu.graduationDate)} - Present
+                              <div className="text-xs text-gray-600 sm:text-right flex-shrink-0">
+                                {formatDate(edu.graduationDate)}
                               </div>
                             )}
                           </div>
@@ -159,13 +168,13 @@ const ResumePreview = () => {
 
                 case 'technicalSkills':
                   return resume.technicalSkills.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         TECHNICAL SKILLS
                       </h2>
                       <div className="space-y-1 sm:space-y-2">
                         {resume.technicalSkills.map((skillCategory) => (
-                          <div key={skillCategory.id} className="flex flex-col sm:flex-row gap-1 sm:gap-0">
+                          <div key={skillCategory.id} className="flex flex-col sm:flex-row gap-1 sm:gap-0 break-inside-avoid">
                             <span className="font-semibold text-xs text-gray-900 sm:w-32 flex-shrink-0">
                               {skillCategory.category}:
                             </span>
@@ -180,13 +189,13 @@ const ResumePreview = () => {
 
                 case 'experience':
                   return resume.experience.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         WORK EXPERIENCE
                       </h2>
                       <div className="space-y-3 sm:space-y-4">
                         {resume.experience.map((exp) => (
-                          <div key={exp.id}>
+                          <div key={exp.id} className="break-inside-avoid">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 mb-1">
                               <div className="flex-1">
                                 <h3 className="font-semibold text-xs text-gray-900 break-words">
@@ -197,7 +206,7 @@ const ResumePreview = () => {
                                 </p>
                               </div>
                               {(exp.startDate || exp.endDate) && (
-                                <div className="text-xs text-gray-600 sm:text-right">
+                                <div className="text-xs text-gray-600 sm:text-right flex-shrink-0">
                                   {formatDate(exp.startDate)} - {exp.endDate ? formatDate(exp.endDate) : 'Present'}
                                 </div>
                               )}
@@ -217,13 +226,13 @@ const ResumePreview = () => {
 
                 case 'projects':
                   return resume.projects.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         ACADEMIC PROJECTS
                       </h2>
                       <div className="space-y-2 sm:space-y-3">
                         {resume.projects.map((project, index) => (
-                          <div key={project.id}>
+                          <div key={project.id} className="break-inside-avoid">
                             <h3 className="font-semibold text-xs text-gray-900 break-words">
                               {index + 1}. {project.title}
                               {project.technologies && (
@@ -252,13 +261,13 @@ const ResumePreview = () => {
 
                 case 'positions':
                   return resume.positions.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         POSITIONS OF RESPONSIBILITY
                       </h2>
                       <div className="space-y-1 sm:space-y-2">
                         {resume.positions.map((position) => (
-                          <div key={position.id}>
+                          <div key={position.id} className="break-inside-avoid">
                             <h3 className="font-semibold text-xs text-gray-900 break-words">
                               • {position.title}
                               {position.organization && (
@@ -278,13 +287,13 @@ const ResumePreview = () => {
 
                 case 'certifications':
                   return resume.certifications && resume.certifications.length > 0 ? (
-                    <section key={section.id}>
+                    <section key={section.id} className="break-inside-avoid">
                       <h2 className="text-sm font-bold text-gray-900 mb-2 sm:mb-3 uppercase tracking-wider border-b border-gray-400 pb-1">
                         CERTIFICATIONS
                       </h2>
                       <div className="space-y-1 sm:space-y-2">
                         {resume.certifications.map((cert) => (
-                          <div key={cert.id}>
+                          <div key={cert.id} className="break-inside-avoid">
                             <h3 className="font-semibold text-xs text-gray-900 break-words">
                               • {cert.title}
                               {cert.provider && (
@@ -309,7 +318,7 @@ const ResumePreview = () => {
         </div>
 
         {/* ATS Footer Note */}
-        <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-gray-200">
+        <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-gray-200 break-inside-avoid">
           <p className="text-center text-xs text-gray-400 break-words">
             This resume is optimized for Applicant Tracking Systems (ATS)
           </p>

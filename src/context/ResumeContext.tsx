@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 export interface PersonalInfo {
@@ -33,12 +34,6 @@ export interface Education {
   cgpa?: string;
 }
 
-export interface Skill {
-  id: string;
-  name: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-}
-
 export interface TechnicalSkill {
   id: string;
   category: string;
@@ -70,7 +65,7 @@ export interface Certification {
 
 export interface ResumeSection {
   id: string;
-  type: 'personal' | 'links' | 'experience' | 'education' | 'skills' | 'technicalSkills' | 'projects' | 'positions' | 'certifications';
+  type: 'personal' | 'links' | 'experience' | 'education' | 'technicalSkills' | 'projects' | 'positions' | 'certifications';
   title: string;
   isVisible: boolean;
 }
@@ -80,7 +75,6 @@ export interface ResumeData {
   socialLinks: SocialLink[];
   experience: Experience[];
   education: Education[];
-  skills: Skill[];
   technicalSkills: TechnicalSkill[];
   projects: Project[];
   positions: Position[];
@@ -106,9 +100,6 @@ type ResumeAction =
   | { type: 'ADD_EDUCATION'; payload: Education }
   | { type: 'UPDATE_EDUCATION'; payload: { id: string; data: Partial<Education> } }
   | { type: 'DELETE_EDUCATION'; payload: string }
-  | { type: 'ADD_SKILL'; payload: Skill }
-  | { type: 'UPDATE_SKILL'; payload: { id: string; data: Partial<Skill> } }
-  | { type: 'DELETE_SKILL'; payload: string }
   | { type: 'ADD_TECHNICAL_SKILL'; payload: TechnicalSkill }
   | { type: 'UPDATE_TECHNICAL_SKILL'; payload: { id: string; data: Partial<TechnicalSkill> } }
   | { type: 'DELETE_TECHNICAL_SKILL'; payload: string }
@@ -138,7 +129,6 @@ const initialResumeData: ResumeData = {
   socialLinks: [],
   experience: [],
   education: [],
-  skills: [],
   technicalSkills: [],
   projects: [],
   positions: [],
@@ -147,7 +137,6 @@ const initialResumeData: ResumeData = {
     { id: 'personal', type: 'personal', title: 'Personal Information', isVisible: true },
     { id: 'links', type: 'links', title: 'Social Links', isVisible: true },
     { id: 'education', type: 'education', title: 'Education', isVisible: true },
-    { id: 'skills', type: 'skills', title: 'Skills', isVisible: true },
     { id: 'technicalSkills', type: 'technicalSkills', title: 'Technical Skills', isVisible: true },
     { id: 'experience', type: 'experience', title: 'Work Experience', isVisible: true },
     { id: 'projects', type: 'projects', title: 'Academic Projects', isVisible: true },
@@ -249,32 +238,6 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
         resume: {
           ...state.resume,
           education: state.resume.education.filter(edu => edu.id !== action.payload)
-        }
-      };
-    case 'ADD_SKILL':
-      return {
-        ...state,
-        resume: {
-          ...state.resume,
-          skills: [...state.resume.skills, action.payload]
-        }
-      };
-    case 'UPDATE_SKILL':
-      return {
-        ...state,
-        resume: {
-          ...state.resume,
-          skills: state.resume.skills.map(skill =>
-            skill.id === action.payload.id ? { ...skill, ...action.payload.data } : skill
-          )
-        }
-      };
-    case 'DELETE_SKILL':
-      return {
-        ...state,
-        resume: {
-          ...state.resume,
-          skills: state.resume.skills.filter(skill => skill.id !== action.payload)
         }
       };
     case 'ADD_TECHNICAL_SKILL':

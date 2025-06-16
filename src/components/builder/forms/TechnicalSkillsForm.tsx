@@ -27,6 +27,16 @@ const TechnicalSkillsForm = () => {
     dispatch({ type: 'DELETE_TECHNICAL_SKILL', payload: id });
   };
 
+  const handleSkillsChange = (id: string, value: string) => {
+    // Split by comma, trim whitespace, and filter out empty strings
+    const skillsArray = value
+      .split(',')
+      .map(skill => skill.trim())
+      .filter(skill => skill.length > 0);
+    
+    updateTechnicalSkill(id, 'skills', skillsArray);
+  };
+
   const categoryOptions = [
     'Programming Languages',
     'Web Development',
@@ -79,18 +89,18 @@ const TechnicalSkillsForm = () => {
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Skills (comma-separated)
+              Skills (separate with commas)
             </label>
             <textarea
               value={skillCategory.skills.join(', ')}
-              onChange={(e) => {
-                const skillsArray = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
-                updateTechnicalSkill(skillCategory.id, 'skills', skillsArray);
-              }}
-              rows={2}
-              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Java, Python, JavaScript, React"
+              onChange={(e) => handleSkillsChange(skillCategory.id, e.target.value)}
+              rows={3}
+              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-vertical"
+              placeholder="Java, Python, JavaScript, React, Node.js"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Type skills separated by commas. Example: Java, Python, JavaScript
+            </p>
           </div>
         </div>
       ))}
