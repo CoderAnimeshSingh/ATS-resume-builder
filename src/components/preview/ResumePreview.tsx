@@ -97,15 +97,21 @@ const ResumePreview = () => {
             )}
           </div>
 
-          {/* Social Links */}
+          {/* Social Links - Show only platform names, URLs are clickable */}
           {resume.socialLinks && resume.socialLinks.length > 0 && (
             <div className="flex flex-wrap justify-center items-center gap-4 text-xs text-gray-700 mb-3">
               {resume.socialLinks.map((link) => (
                 <span key={link.id} className="flex items-center gap-1">
                   <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                  <span>
-                    {link.platform}: {link.url || 'URL not provided'}
-                  </span>
+                  <a 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-600 underline"
+                    style={{ color: 'inherit', textDecoration: 'underline' }}
+                  >
+                    {link.platform}
+                  </a>
                 </span>
               ))}
             </div>

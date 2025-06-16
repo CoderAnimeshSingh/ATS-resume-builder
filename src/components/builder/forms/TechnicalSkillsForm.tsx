@@ -28,13 +28,13 @@ const TechnicalSkillsForm = () => {
   };
 
   const handleSkillsChange = (id: string, value: string) => {
-    // Split by comma, trim whitespace, and filter out empty strings
+    // Allow normal typing including commas and spaces
+    // Split by comma for processing, but preserve the raw input
     const skillsArray = value
       .split(',')
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0);
     
-    // Update the skills array in the state
     updateTechnicalSkill(id, 'skills', skillsArray);
   };
 
@@ -43,6 +43,11 @@ const TechnicalSkillsForm = () => {
     'Web Development',
     'Databases',
     'Tools & Platforms',
+    'Cloud Technologies',
+    'Mobile Development',
+    'DevOps',
+    'Machine Learning',
+    'Data Science',
     'Others'
   ];
 
@@ -95,19 +100,24 @@ const TechnicalSkillsForm = () => {
             <textarea
               value={skillCategory.skills.join(', ')}
               onChange={(e) => handleSkillsChange(skillCategory.id, e.target.value)}
-              rows={3}
+              onKeyDown={(e) => {
+                // Allow all key presses including comma and space
+                e.stopPropagation();
+              }}
+              rows={4}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
-              placeholder="Java, Python, JavaScript, React, Node.js"
+              placeholder="Java, Python, JavaScript, React, Node.js, Spring Boot"
+              style={{ minHeight: '80px' }}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Type skills separated by commas. Example: Java, Python, JavaScript
+              Type skills separated by commas. Press comma and space to separate skills clearly.
             </p>
             {skillCategory.skills.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {skillCategory.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                    className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border"
                   >
                     {skill}
                   </span>
